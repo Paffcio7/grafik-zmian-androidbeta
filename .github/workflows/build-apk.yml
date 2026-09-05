@@ -15,9 +15,12 @@ jobs:
           base64 --decode /tmp/hotfix.b64 > /tmp/hotfix.tar.gz
           echo "b3094cae30ff4ee94f35097ba0f9656afa995aa08aac33e6832236bce88b8d8c  /tmp/hotfix.tar.gz" | sha256sum -c -
           tar -xzf /tmp/hotfix.tar.gz -C .
+          # Android framework BiometricPrompt lives in android.hardware.biometrics.
+          sed -i 's/import android\.app\.BiometricPrompt;/import android.hardware.biometrics.BiometricPrompt;/' app/src/main/java/pl/grafikzmian/app/MainActivity.java
           grep -q "versionName '0.1.1'" app/build.gradle
           grep -q "bottomnav" app/src/main/assets/www/app.js
           grep -q "setOnApplyWindowInsetsListener" app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q "android.hardware.biometrics.BiometricPrompt" app/src/main/java/pl/grafikzmian/app/MainActivity.java
           node --check app/src/main/assets/www/app.js
       - uses: actions/setup-java@v4
         with:
