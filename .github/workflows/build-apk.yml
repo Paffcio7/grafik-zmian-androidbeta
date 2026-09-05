@@ -20,24 +20,26 @@ jobs:
           rm -rf app build.gradle settings.gradle README.md VALIDATION.md
           tar -xzf /tmp/v020.tar.gz -C .
 
-      - name: Validate v0.2.0 source
+      - name: Apply v0.2.1 compact UI hotfix
         shell: bash
         run: |
           set -euo pipefail
-          grep -q "versionCode 5" app/build.gradle
-          grep -q "versionName '0.2.0'" app/build.gradle
-          grep -q 'android:label="Kalendarz zmian"' app/src/main/AndroidManifest.xml
-          grep -q 'data-onboard-brigade' app/src/main/assets/www/app.js
-          grep -q 'drawerOpen' app/src/main/assets/www/app.js
-          grep -q 'PepsiCo, Środa Śląska' app/src/main/assets/www/app.js
-          grep -q 'for(let i=0;i<49;i++)' app/src/main/assets/www/app.js
+          python3 hotfix/v0.2.1/apply.py
+          grep -q "versionCode 6" app/build.gradle
+          grep -q "versionName '0.2.1'" app/build.gradle
+          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
+          ! grep -q 'for(let i=0;i<49;i++)' app/src/main/assets/www/app.js
+          grep -q 'Kalendarz zmian · v0.2.1' app/src/main/assets/www/app.js
+          grep -q 'v0.2.1 compact calendar UI' app/src/main/assets/www/styles.css
+          grep -q 'height:82px' app/src/main/assets/www/styles.css
+          grep -q 'font-size:20px' app/src/main/assets/www/styles.css
+          grep -q 'width:25px' app/src/main/assets/www/styles.css
           grep -q -- '--day:#ff9f1c' app/src/main/assets/www/styles.css
           grep -q -- '--night:#111111' app/src/main/assets/www/styles.css
           grep -q 'openDayEditor' app/src/main/java/pl/grafikzmian/app/MainActivity.java
-          grep -q 'setOnApplyWindowInsetsListener' app/src/main/java/pl/grafikzmian/app/MainActivity.java
           grep -q 'class DayEditorActivity' app/src/main/java/pl/grafikzmian/app/DayEditorActivity.java
-          grep -q 'DayEditorActivity' app/src/main/AndroidManifest.xml
           node --check app/src/main/assets/www/app.js
+          python3 -m py_compile hotfix/v0.2.1/apply.py
           python3 - <<'PY'
           from datetime import date
           cycle=['D','D','O','O','N','N','N','O','O','D','D','O','O','O','N','N','O','O','D','D','D','O','O','N','N','O','O','O']
@@ -64,11 +66,11 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Build v0.2.0 debug APK
+      - name: Build v0.2.1 debug APK
         run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: KalendarzZmian-v0.2.0-apk
+          name: KalendarzZmian-v0.2.1-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
