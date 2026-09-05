@@ -56,17 +56,30 @@ jobs:
           grep -q "monthPanel(prev,'prev')" app/src/main/assets/www/app.js
           grep -q "monthPanel(next,'next')" app/src/main/assets/www/app.js
           grep -q 'setTrackDrag' app/src/main/assets/www/app.js
-          grep -q 'Kalendarz zmian · v0.2.3' app/src/main/assets/www/app.js
-          grep -q 'v0.2.3 live adjacent-month carousel' app/src/main/assets/www/styles.css
           grep -q 'width:300%' app/src/main/assets/www/styles.css
           grep -q 'translate3d(-33.333333%,0,0)' app/src/main/assets/www/styles.css
+          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
+          node --check app/src/main/assets/www/app.js
+
+      - name: Apply v0.2.4 current day highlight
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 hotfix/v0.2.4/apply.py
+          grep -q "versionCode 9" app/build.gradle
+          grep -q "versionName '0.2.4'" app/build.gradle
+          grep -q "is-today" app/src/main/assets/www/app.js
+          grep -q 'v0.2.4 current-day highlight' app/src/main/assets/www/styles.css
+          grep -q 'calendar-panel-current .cal-day.is-today' app/src/main/assets/www/styles.css
+          grep -q 'box-shadow:inset 0 0 0 2px var(--blue)' app/src/main/assets/www/styles.css
+          grep -q 'Kalendarz zmian · v0.2.4' app/src/main/assets/www/app.js
           grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
           grep -q -- '--day:#ff9f1c' app/src/main/assets/www/styles.css
           grep -q -- '--night:#111111' app/src/main/assets/www/styles.css
           grep -q 'openDayEditor' app/src/main/java/pl/grafikzmian/app/MainActivity.java
           grep -q 'class DayEditorActivity' app/src/main/java/pl/grafikzmian/app/DayEditorActivity.java
           node --check app/src/main/assets/www/app.js
-          python3 -m py_compile hotfix/v0.2.3/apply.py
+          python3 -m py_compile hotfix/v0.2.4/apply.py
           python3 - <<'PY'
           from datetime import date
           cycle=['D','D','O','O','N','N','N','O','O','D','D','O','O','O','N','N','O','O','D','D','D','O','O','N','N','O','O','O']
@@ -93,11 +106,11 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Build v0.2.3 debug APK
+      - name: Build v0.2.4 debug APK
         run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: KalendarzZmian-v0.2.3-apk
+          name: KalendarzZmian-v0.2.4-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
