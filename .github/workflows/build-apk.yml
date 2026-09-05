@@ -8,6 +8,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Restore v0.1.1 hotfix source
+        shell: bash
+        run: |
+          cat hotfix/v0.1.1/payload.001 hotfix/v0.1.1/payload.002 hotfix/v0.1.1/payload.003 hotfix/v0.1.1/payload.004 > /tmp/hotfix.b64
+          base64 --decode /tmp/hotfix.b64 > /tmp/hotfix.tar.gz
+          echo "b3094cae30ff4ee94f35097ba0f9656afa995aa08aac33e6832236bce88b8d8c  /tmp/hotfix.tar.gz" | sha256sum -c -
+          tar -xzf /tmp/hotfix.tar.gz -C .
+          grep -q "versionName '0.1.1'" app/build.gradle
+          grep -q "bottomnav" app/src/main/assets/www/app.js
+          grep -q "setOnApplyWindowInsetsListener" app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          node --check app/src/main/assets/www/app.js
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -17,8 +28,10 @@ jobs:
       - uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.11.1'
-      - run: gradle assembleDebug --stacktrace
+      - name: Build v0.1.1 debug APK
+        run: gradle assembleDebug --stacktrace
       - uses: actions/upload-artifact@v4
         with:
-          name: GrafikZmian-beta-apk
+          name: GrafikZmian-v0.1.1-apk
           path: app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
