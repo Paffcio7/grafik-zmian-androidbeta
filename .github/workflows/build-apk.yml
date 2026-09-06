@@ -61,26 +61,33 @@ jobs:
           python3 hotfix/v0.2.8/apply.py
 
       - name: Apply v0.2.9 dark system surface and year picker
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.9/apply.py
-          grep -q "versionCode 14" app/build.gradle
-          grep -q "versionName '0.2.9'" app/build.gradle
-          grep -q 'systemSurface=Color.parseColor(dark ? "#0B1118" : "#F4F7FA")' app/src/main/java/pl/grafikzmian/app/MainActivity.java
-          grep -q 'webView.setBackgroundColor(systemSurface)' app/src/main/java/pl/grafikzmian/app/MainActivity.java
-          grep -q 'parent instanceof android.view.View' app/src/main/java/pl/grafikzmian/app/MainActivity.java
-          grep -q 'pickerYearMode=false' app/src/main/assets/www/app.js
-          grep -q 'data-picker-year-toggle' app/src/main/assets/www/app.js
-          grep -q 'function renderDatePickerYears' app/src/main/assets/www/app.js
-          grep -q 'data-picker-year' app/src/main/assets/www/app.js
+
+      - name: Apply v0.3.0 dark polish and responsive swipe
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 hotfix/v0.3.0/apply.py
+          grep -q "versionCode 15" app/build.gradle
+          grep -q "versionName '0.3.0'" app/build.gradle
+          grep -q 'Kalendarz zmian · v0.3.0' app/src/main/assets/www/app.js
+          grep -q 'function changeMonthAnimated(delta,fromPx=0,velocity=0)' app/src/main/assets/www/app.js
+          grep -q 'const threshold=Math.min(48,width\*.12)' app/src/main/assets/www/app.js
+          grep -q 'fastFlick=Math.abs(velocity)>=.48' app/src/main/assets/www/app.js
+          grep -q 'requestAnimationFrame(paint)' app/src/main/assets/www/app.js
+          grep -q 'transform 135ms cubic-bezier' app/src/main/assets/www/app.js
+          grep -q 'v0.3.0 dark polish + responsive month swipe' app/src/main/assets/www/styles.css
+          grep -q 'border:1px solid #39424c' app/src/main/assets/www/styles.css
+          grep -q 'rgba(255,214,64,.16)' app/src/main/assets/www/styles.css
+          grep -q 'opacity:.40' app/src/main/assets/www/styles.css
           grep -q 'picker-year-list' app/src/main/assets/www/styles.css
-          grep -q 'Kalendarz zmian · v0.2.9' app/src/main/assets/www/app.js
-          grep -q "theme:'system'" app/src/main/assets/www/app.js
+          grep -q 'systemSurface=Color.parseColor(dark ? "#0B1118" : "#F4F7FA")' app/src/main/java/pl/grafikzmian/app/MainActivity.java
           grep -q 'BRIGADE_OFFSET={A:0,B:14,C:7,D:21}' app/src/main/assets/www/app.js
           grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
           node --check app/src/main/assets/www/app.js
-          python3 -m py_compile hotfix/v0.2.9/apply.py
+          python3 -m py_compile hotfix/v0.3.0/apply.py
 
       - uses: actions/setup-java@v4
         with:
@@ -95,11 +102,11 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Build v0.2.9 debug APK
+      - name: Build v0.3.0 debug APK
         run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: KalendarzZmian-v0.2.9-apk
+          name: KalendarzZmian-v0.3.0-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
