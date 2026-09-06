@@ -73,6 +73,25 @@ jobs:
           node --check app/src/main/assets/www/app.js
           python3 -m py_compile hotfix/v0.2.7/apply.py
 
+      - name: Apply v0.2.8 readable status bar icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 hotfix/v0.2.8/apply.py
+          grep -q "versionCode 13" app/build.gradle
+          grep -q "versionName '0.2.8'" app/build.gradle
+          grep -q 'dark ? "#0B1118" : "#F4F7FA"' app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q 'if(!dark) flags |= android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR' app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q 'APPEARANCE_LIGHT_STATUS_BARS' app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q 'Kalendarz zmian · v0.2.8' app/src/main/assets/www/app.js
+          grep -q "theme:'system'" app/src/main/assets/www/app.js
+          grep -q 'data-theme-settings' app/src/main/assets/www/app.js
+          grep -q 'BRIGADE_OFFSET={A:0,B:14,C:7,D:21}' app/src/main/assets/www/app.js
+          grep -q 'data-open-date-picker' app/src/main/assets/www/app.js
+          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
+          node --check app/src/main/assets/www/app.js
+          python3 -m py_compile hotfix/v0.2.8/apply.py
+
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -86,11 +105,11 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Build v0.2.7 debug APK
+      - name: Build v0.2.8 debug APK
         run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: KalendarzZmian-v0.2.7-apk
+          name: KalendarzZmian-v0.2.8-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
