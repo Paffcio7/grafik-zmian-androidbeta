@@ -15,14 +15,12 @@ s=one(s,'versionCode 11','versionCode 12','versionCode')
 s=one(s,"versionName '0.2.6'","versionName '0.2.7'",'versionName')
 write(p,s)
 
-# Native Android system bars: force status/navigation bars visible after every theme update.
+# Native Android system bars: patch the real Javascript bridge method used by the WebView.
 p='app/src/main/java/pl/grafikzmian/app/MainActivity.java'; s=read(p)
 if '0.2.6' not in s: raise SystemExit('PATCH_FAIL MainActivity version anchor missing')
 s=s.replace('0.2.6','0.2.7')
-m=re.search(r'(private\s+void\s+setBars\s*\(\s*boolean\s+dark\s*\)\s*\{)',s)
-if not m:
-    m=re.search(r'(void\s+setBars\s*\(\s*boolean\s+dark\s*\)\s*\{)',s)
-if not m: raise SystemExit('PATCH_FAIL setBars(boolean dark) not found')
+m=re.search(r'((?:public|private|protected)?\s*void\s+setSystemBars\s*\(\s*boolean\s+dark\s*\)\s*\{)',s)
+if not m: raise SystemExit('PATCH_FAIL setSystemBars(boolean dark) bridge not found')
 start=m.end()-1
 depth=0; end=None
 for i in range(start,len(s)):
@@ -31,34 +29,36 @@ for i in range(start,len(s)):
         depth-=1
         if depth==0:
             end=i; break
-if end is None: raise SystemExit('PATCH_FAIL setBars body end not found')
+if end is None: raise SystemExit('PATCH_FAIL setSystemBars body end not found')
 native=r'''
-        // v0.2.7: never run the app in fullscreen. Keep Android status icons visible.
-        getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        android.view.View decor = getWindow().getDecorView();
-        int flags = decor.getSystemUiVisibility();
-        flags &= ~android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
-        flags &= ~android.view.View.SYSTEM_UI_FLAG_IMMERSIVE;
-        flags &= ~android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
-        flags &= ~android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            if (!dark) flags |= android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-            else flags &= ~android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
-        }
-        decor.setSystemUiVisibility(flags);
-        if (android.os.Build.VERSION.SDK_INT >= 30) {
-            android.view.WindowInsetsController controller = getWindow().getInsetsController();
-            if (controller != null) {
-                controller.show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
-                controller.setSystemBarsAppearance(0, android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
-                controller.setSystemBarsAppearance(
-                    dark ? 0 : android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
-                    android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
-                );
-            }
-        }
-        getWindow().setStatusBarColor(android.graphics.Color.parseColor("#164BB7"));
-        getWindow().setNavigationBarColor(android.graphics.Color.parseColor(dark ? "#0B1118" : "#F4F7FA"));
+            runOnUiThread(() -> {
+                // v0.2.7: never keep the app in fullscreen. Preserve Android status icons.
+                getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_FULLSCREEN);
+                android.view.View decor = getWindow().getDecorView();
+                int flags = decor.getSystemUiVisibility();
+                flags &= ~android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
+                flags &= ~android.view.View.SYSTEM_UI_FLAG_IMMERSIVE;
+                flags &= ~android.view.View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+                flags &= ~android.view.View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR;
+                if (android.os.Build.VERSION.SDK_INT >= 26) {
+                    if (!dark) flags |= android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                    else flags &= ~android.view.View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR;
+                }
+                decor.setSystemUiVisibility(flags);
+                if (android.os.Build.VERSION.SDK_INT >= 30) {
+                    android.view.WindowInsetsController controller = getWindow().getInsetsController();
+                    if (controller != null) {
+                        controller.show(android.view.WindowInsets.Type.statusBars() | android.view.WindowInsets.Type.navigationBars());
+                        controller.setSystemBarsAppearance(0, android.view.WindowInsetsController.APPEARANCE_LIGHT_STATUS_BARS);
+                        controller.setSystemBarsAppearance(
+                            dark ? 0 : android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS,
+                            android.view.WindowInsetsController.APPEARANCE_LIGHT_NAVIGATION_BARS
+                        );
+                    }
+                }
+                getWindow().setStatusBarColor(android.graphics.Color.parseColor("#164BB7"));
+                getWindow().setNavigationBarColor(android.graphics.Color.parseColor(dark ? "#0B1118" : "#F4F7FA"));
+            });
 '''
 s=s[:end]+native+s[end:]
 write(p,s)
@@ -100,7 +100,6 @@ new=r'''  function systemPrefersDark(){try{return window.matchMedia&&window.matc
   }
   function setSystemBars(){applyTheme();}'''
 s=one(s,old,new,'theme-system-bars')
-# Listen for live Android theme changes when Systemowy is selected.
 needle="  render();scheduleReminders();setTimeout(()=>{if(state.lockMode!=='none')lockNow();},400);"
 repl="  try{window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change',()=>{if(state.theme==='system')applyTheme();});}catch{}\n  applyTheme();\n  render();scheduleReminders();setTimeout(()=>{if(state.lockMode!=='none')lockNow();},400);"
 s=one(s,needle,repl,'system-theme-listener')
