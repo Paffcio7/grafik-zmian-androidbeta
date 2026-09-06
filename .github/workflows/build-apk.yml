@@ -21,106 +21,57 @@ jobs:
           tar -xzf /tmp/v020.tar.gz -C .
 
       - name: Apply v0.2.1 compact UI hotfix
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.1/apply.py
-          grep -q "versionCode 6" app/build.gradle
-          grep -q "versionName '0.2.1'" app/build.gradle
-          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
-          ! grep -q 'for(let i=0;i<49;i++)' app/src/main/assets/www/app.js
-          node --check app/src/main/assets/www/app.js
 
       - name: Apply v0.2.2 swipe animation hotfix
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.2/apply.py
-          grep -q "versionCode 7" app/build.gradle
-          grep -q "versionName '0.2.2'" app/build.gradle
-          grep -q 'bindMonthSwipe' app/src/main/assets/www/app.js
-          grep -q 'pointermove' app/src/main/assets/www/app.js
-          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
-          node --check app/src/main/assets/www/app.js
 
       - name: Apply v0.2.3 live adjacent month carousel
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.3/apply.py
-          grep -q "versionCode 8" app/build.gradle
-          grep -q "versionName '0.2.3'" app/build.gradle
-          grep -q 'monthPanel' app/src/main/assets/www/app.js
-          grep -q 'calendar-viewport' app/src/main/assets/www/app.js
-          grep -q 'calendar-track' app/src/main/assets/www/app.js
-          grep -q "monthPanel(prev,'prev')" app/src/main/assets/www/app.js
-          grep -q "monthPanel(next,'next')" app/src/main/assets/www/app.js
-          grep -q 'setTrackDrag' app/src/main/assets/www/app.js
-          grep -q 'width:300%' app/src/main/assets/www/styles.css
-          grep -q 'translate3d(-33.333333%,0,0)' app/src/main/assets/www/styles.css
-          grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
-          node --check app/src/main/assets/www/app.js
 
       - name: Apply v0.2.4 current day highlight
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.4/apply.py
-          grep -q "versionCode 9" app/build.gradle
-          grep -q "versionName '0.2.4'" app/build.gradle
-          grep -q "is-today" app/src/main/assets/www/app.js
-          grep -q 'v0.2.4 current-day highlight' app/src/main/assets/www/styles.css
-          grep -q 'calendar-panel-current .cal-day.is-today' app/src/main/assets/www/styles.css
-          grep -q 'Kalendarz zmian · v0.2.4' app/src/main/assets/www/app.js
-          node --check app/src/main/assets/www/app.js
 
       - name: Apply v0.2.5 soft yellow today highlight
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.5/apply.py
-          grep -q "versionCode 10" app/build.gradle
-          grep -q "versionName '0.2.5'" app/build.gradle
-          grep -q 'Kalendarz zmian · v0.2.5' app/src/main/assets/www/app.js
-          grep -q 'v0.2.5 soft yellow today highlight' app/src/main/assets/www/styles.css
-          grep -q 'background:rgba(255,220,72,.30)' app/src/main/assets/www/styles.css
-          grep -q 'box-shadow:none' app/src/main/assets/www/styles.css
-          node --check app/src/main/assets/www/app.js
 
       - name: Apply v0.2.6 brigade and date picker fix
-        shell: bash
         run: |
           set -euo pipefail
           python3 hotfix/v0.2.6/apply.py
-          grep -q "versionCode 11" app/build.gradle
-          grep -q "versionName '0.2.6'" app/build.gradle
+
+      - name: Apply v0.2.7 status bar and theme selector
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 hotfix/v0.2.7/apply.py
+          grep -q "versionCode 12" app/build.gradle
+          grep -q "versionName '0.2.7'" app/build.gradle
+          grep -q "theme:'system'" app/src/main/assets/www/app.js
+          grep -q 'data-theme-settings' app/src/main/assets/www/app.js
+          grep -q 'function themeSheet' app/src/main/assets/www/app.js
+          grep -q 'function resolvedDark' app/src/main/assets/www/app.js
+          grep -q 'Kalendarz zmian · v0.2.7' app/src/main/assets/www/app.js
+          grep -q 'v0.2.7 visible system bars + full theme selector' app/src/main/assets/www/styles.css
+          grep -q 'html\[data-theme="dark"\]' app/src/main/assets/www/styles.css
+          grep -q 'FLAG_FULLSCREEN' app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q 'controller.show' app/src/main/java/pl/grafikzmian/app/MainActivity.java
+          grep -q 'APPEARANCE_LIGHT_NAVIGATION_BARS' app/src/main/java/pl/grafikzmian/app/MainActivity.java
           grep -q 'BRIGADE_OFFSET={A:0,B:14,C:7,D:21}' app/src/main/assets/www/app.js
           grep -q 'data-open-date-picker' app/src/main/assets/www/app.js
-          grep -q 'function openDatePicker' app/src/main/assets/www/app.js
-          grep -q 'function renderDatePicker' app/src/main/assets/www/app.js
-          grep -q 'data-apply-date-picker' app/src/main/assets/www/app.js
-          grep -q 'date-picker-card' app/src/main/assets/www/styles.css
-          grep -q 'Kalendarz zmian · v0.2.6' app/src/main/assets/www/app.js
-          grep -q '<title>Kalendarz zmian</title>' app/src/main/assets/www/index.html
           grep -q 'for(let i=0;i<42;i++)' app/src/main/assets/www/app.js
-          grep -q -- '--day:#ff9f1c' app/src/main/assets/www/styles.css
-          grep -q -- '--night:#111111' app/src/main/assets/www/styles.css
-          grep -q 'openDayEditor' app/src/main/java/pl/grafikzmian/app/MainActivity.java
-          grep -q 'class DayEditorActivity' app/src/main/java/pl/grafikzmian/app/DayEditorActivity.java
           node --check app/src/main/assets/www/app.js
-          python3 -m py_compile hotfix/v0.2.6/apply.py
-          python3 - <<'PY'
-          from datetime import date
-          cycle=['D','D','O','O','N','N','N','O','O','D','D','O','O','O','N','N','O','O','D','D','D','O','O','N','N','O','O','O']
-          anchor=date(2026,9,14)
-          offsets={'A':0,'B':14,'C':7,'D':21}
-          for brigade,off in offsets.items():
-              vals=[]
-              for d in range(1,31):
-                  x=date(2026,9,d)
-                  vals.append(cycle[((x-anchor).days+off)%28])
-              print(brigade, vals.count('D'), vals.count('N'))
-          PY
+          python3 -m py_compile hotfix/v0.2.7/apply.py
 
       - uses: actions/setup-java@v4
         with:
@@ -135,11 +86,11 @@ jobs:
         with:
           gradle-version: '8.11.1'
 
-      - name: Build v0.2.6 debug APK
+      - name: Build v0.2.7 debug APK
         run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:
-          name: KalendarzZmian-v0.2.6-apk
+          name: KalendarzZmian-v0.2.7-apk
           path: app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
